@@ -1,0 +1,8 @@
+{
+  "name": "odesza",
+  "version": "0.0.1",
+  "description": "Flexible templates powered by ES6 template strings.",
+  "main": "index.js",
+  "author": "Wells Johnston",
+  "license": "MIT"
+}
