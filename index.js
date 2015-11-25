@@ -21,13 +21,13 @@ module.exports = odesza;
  * @return {string} The rendered template.
  */
 
-odesza.render = (template, vars) => {
+odesza.render = function(template, vars) {
   try {
     return vm.runInNewContext('`' + template + '`', vars);
   } catch (e) {
     throw new Error(e);
   }
-};
+}
 
 /**
  * @param {string} path The path to the template file.
@@ -35,14 +35,14 @@ odesza.render = (template, vars) => {
  * @return {string} The rendered template.
  */
 
-odesza.compile = (path, options) => {
+odesza.compile = function(path, options) {
   try {
     var template = fs.readFileSync(path).toString();
   } catch (e) {
     throw new Error(e);
   }
   return this.render(template, options);
-};
+}
 
 /**
  * Adds support for express.
@@ -52,6 +52,6 @@ odesza.compile = (path, options) => {
  * @param {function} fn
  */
 
-odesza.__express = (path, options, fn) => {
+odesza.__express = function(path, options, fn) {
   return fn(this.compile(path, options));
-};
+}
