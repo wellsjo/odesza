@@ -48,9 +48,7 @@ module.exports = function createOdesza (context) {
     var renderScope = extend(true, scope, vars);
     var ctx = {template: template, context: renderScope};
 
-    middleware.forEach(function (ware) {
-      ware(ctx);
-    });
+    middleware.forEach(ware => ware(ctx));
 
     try {
       return vm.runInNewContext('`' + (ctx.template || template) + '`', renderScope);
@@ -84,8 +82,11 @@ module.exports = function createOdesza (context) {
    */
 
   odesza.use = function(fn) {
-    if ('function' == typeof fn)
+    if ('function' == typeof fn) {
       middleware.push(fn);
+    } else {
+      throw new TypeError('fn is not Function type.')
+    }
     return this;
   };
 
