@@ -27,9 +27,11 @@ odesza.render = function(template, vars) {
   } catch (e) {
     throw new Error(e);
   }
-}
+};
 
 /**
+ * Compiles a template file.
+ *
  * @param {string} path The path to the template file.
  * @param {object} options Options passed in to render the template.
  * @return {string} The rendered template.
@@ -41,8 +43,8 @@ odesza.compile = function(path, options) {
   } catch (e) {
     throw new Error(e);
   }
-  return this.render(template, options);
-}
+  return odesza.render(template, options);
+};
 
 /**
  * Adds support for express.
@@ -53,5 +55,9 @@ odesza.compile = function(path, options) {
  */
 
 odesza.__express = function(path, options, fn) {
-  return fn(this.compile(path, options));
-}
+  try {
+    return fn(null, odesza.compile(path, options));
+  } catch (e) {
+    return fn(e);
+  }
+};
