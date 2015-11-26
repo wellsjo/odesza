@@ -29,6 +29,12 @@ module.exports = function createOdesza (context) {
   var odesza = {};
 
   /**
+   * odesza middleware.
+   */
+
+  var middleware = [];
+
+  /**
    * Renders a template with the given variables.
    *
    * @param {string} template The template to render.
@@ -40,8 +46,12 @@ module.exports = function createOdesza (context) {
   odesza.render = function(template, vars) {
     vars = vars && 'object' == typeof vars ? vars : {};
     var renderScope = extend(true, scope, vars);
+    var ctx = {template: template, context: renderScope};
+
+    middleware.forEach(ware => ware(ctx));
+
     try {
-      return vm.runInNewContext('`' + template + '`', renderScope);
+      return vm.runInNewContext('`' + (ctx.template || template) + '`', renderScope);
     } catch (e) {
       throw new Error(e);
     }
@@ -62,6 +72,22 @@ module.exports = function createOdesza (context) {
       throw new Error(e);
     }
     return odesza.render(template, options);
+  };
+
+  /**
+   * Install plugin.
+   *
+   * @param {Function} fn Middlware
+   * @return {Object} odesza
+   */
+
+  odesza.use = function(fn) {
+    if ('function' == typeof fn) {
+      middleware.push(fn);
+    } else {
+      throw new TypeError('fn is not Function type.')
+    }
+    return this;
   };
 
   /**
