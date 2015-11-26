@@ -9,6 +9,7 @@
 var extend = require('extend');
 var fs = require('fs');
 var vm = require('vm');
+var __import = require('./lib/import');
 
 /**
  * Creates an odesza object.
@@ -17,7 +18,7 @@ var vm = require('vm');
  * @return {Object}
  */
 
-module.exports = function createOdesza (context) {
+module.exports = function createOdesza(context) {
 
   // create scope for this instance
   var scope = extend(true, {}, context || {});
@@ -44,11 +45,16 @@ module.exports = function createOdesza (context) {
    */
 
   odesza.render = function(template, vars) {
-    vars = vars && 'object' == typeof vars ? vars : {};
-    var renderScope = extend(true, scope, vars);
-    var ctx = {template: template, context: renderScope};
 
-    middleware.forEach(ware => ware(ctx));
+    vars = vars && 'object' == typeof vars ? vars : {};
+
+    var renderScope = extend(true, scope, vars);
+    var ctx = {
+      template: template,
+      context: renderScope
+    };
+
+    middleware.forEach(ware => ware.call(odesza, ctx));
 
     try {
       return vm.runInNewContext('`' + (ctx.template || template) + '`', renderScope);
@@ -91,6 +97,12 @@ module.exports = function createOdesza (context) {
   };
 
   /**
+   * Adds support for import('') syntax.
+   */
+
+  odesza.use(__import);
+
+  /**
    * Adds support for express.
    *
    * @param {string} path
@@ -112,4 +124,3 @@ module.exports = function createOdesza (context) {
 
   return odesza;
 };
-
