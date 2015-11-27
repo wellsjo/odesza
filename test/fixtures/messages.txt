@@ -1,0 +1,1 @@
+import('fixtures/message_pt1.txt')import('fixtures/message_pt2.txt')import('fixtures/message_pt3.txt')
