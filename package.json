@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Wells Johnston",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/littlstar/odesza"
+  },
   "scripts": {
     "test": "node test"
   },
