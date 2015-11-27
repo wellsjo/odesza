@@ -23,19 +23,34 @@ module.exports = odesza;
  * Renders a template with the given variables.
  *
  * @param {string} template The template to render.
- * @param {object} vars An object of key-value pairs representing the
+ * @param {object} options An object of key-value pairs representing the
  * variables to be used in the template.
+ * @param {string} [basePath] Optional. The base path to use for import and
+ * require statements.
  * @return {string} The rendered template.
  */
 
-odesza.render = function(template, vars) {
+odesza.render = function(template, options, basePath) {
 
-  vars = vars && 'object' == typeof vars ? vars : {};
+  options = options && 'object' == typeof options ? options : {};
 
-  template = resolveImports(template);
+  // matches import(''), import(""), require(''), require("")
+  var rgx = /(import|require)\([\'\"]([\w.\/]+)[\'\"]\)/g;
+  var matches = template.match(rgx) || [];
+
+  // make matches array values unique
+  var imports = matches.filter((m, i) => matches.indexOf(m) == i);
+
+  // recursively replace each import statement with its compiled template
+  imports.forEach(statement => {
+    let path = basePath + statement.split('\'')[1];
+    template = template
+      .split(statement)
+      .join(odesza.compile(path, options));
+  });
 
   try {
-    return vm.runInNewContext('`' + template + '`', vars);
+    return vm.runInNewContext('`' + template + '`', options);
   } catch (e) {
     throw new Error(e);
   }
@@ -50,12 +65,19 @@ odesza.render = function(template, vars) {
  */
 
 odesza.compile = function(path, options) {
+  if (typeof path != 'string') {
+    throw new TypeError('path must be a string');
+  }
+  if (path.indexOf('.') == -1) {
+    path += '.odesza';
+  }
   try {
+    var basePath = path.substr(0, path.lastIndexOf('/') + 1);
     var template = fs.readFileSync(path).toString().trim();
   } catch (e) {
     throw new Error(e);
   }
-  return odesza.render(template, options);
+  return odesza.render(template, options, basePath);
 };
 
 /**
@@ -89,25 +111,3 @@ odesza.__express = function(path, options, fn) {
     return fn(e);
   }
 };
-
-/**
- * Adds support for import keyword.
- */
-
-function resolveImports(template) {
-
-  // matches import('file'), import("file")
-  var rgx = /(import|require)\([\'\"]([\w.]+)[\'\"]\)/g;
-
-  // make matches values unique
-  var matches = template.match(rgx) || [];
-  matches = matches.filter((m, i) => matches.indexOf(m) == i);
-
-  // replace each import match with the compiled version
-  matches.forEach(match => {
-    let name = match.split('\'')[1];
-    template = template.split(match).join(odesza.compile(name));
-  });
-
-  return template;
-}

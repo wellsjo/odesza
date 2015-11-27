@@ -9,7 +9,14 @@ const fs = require('fs');
 const read = file => fs.readFileSync(file, 'utf-8');
 const fixture = file => path.join(__dirname, 'fixtures', file);
 
-test('simple', t => {
+test('render variable', t => {
+  let vars = { value: 'world' };
+  let string = odesza.render('hello ${value}', vars);
+  t.ok(string == 'hello world', 'template renders')
+  t.end();
+});
+
+test('compile file', t => {
   let vars = { value: 'world' };
   let string = odesza.compile(fixture('simple.txt'), vars);
   t.ok(string == 'hello world', 'template compiles');
@@ -17,7 +24,22 @@ test('simple', t => {
 });
 
 test('import', t => {
-  let vars = { name : 'me' };
+  let vars = { name : 'yo' };
+  let string = odesza.compile(fixture('message1'), vars);
+  t.ok(string == 'yo1', 'import statement works');
+  t.end();
+});
+
+test('recursive imports', t => {
+  let vars = { name: 'yo' };
+  let string = odesza.compile(fixture('message3.txt'), vars);
+  t.ok(string == 'yo3yo1', 'recursive import statements');
+  t.end();
+});
+
+test('multiple import statements', t => {
+  let vars = { name: 'yo' };
   let string = odesza.compile(fixture('messages.txt'), vars);
-  console.log(string);
+  t.ok(string == 'yo1yo2yo3yo1', 'multiple import statements');
+  t.end();
 });
