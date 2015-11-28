@@ -1,0 +1,7 @@
+extend('base')
+
+block('content')
+<p>
+  hello ${name}!
+</p>
+endblock('content')

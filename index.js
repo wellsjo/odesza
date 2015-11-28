@@ -8,16 +8,8 @@
 
 var fs = require('fs');
 var vm = require('vm');
-
-/**
- * Creates an odesza object.
- *
- * @param {Object} context Initial context
- * @return {Object}
- */
-
 var odesza = {};
-module.exports = odesza;
+var blockContent = {};
 
 /**
  * Renders a template with the given variables.
@@ -34,19 +26,39 @@ odesza.render = function(template, options, basePath) {
 
   options = options && 'object' == typeof options ? options : {};
 
-  // matches import(''), import(""), require(''), require("")
-  var rgx = /(import|require)\([\'\"]([\w.\/]+)[\'\"]\)/g;
-  var matches = template.match(rgx) || [];
+  var s = statements(template);
 
-  // make matches array values unique
-  var imports = matches.filter((m, i) => matches.indexOf(m) == i);
+  s.blocks.forEach(block => {
+    if (s.blocks.indexOf(`end${block}`) > -1) {
+      let start = template.indexOf(block) + block.length;
+      let end = template.indexOf(`end${block}`);
+      blockContent[block] = template.substr(start, end - start).trim();
+    } else {
+      // check if the block is available in memory
+      if (blockContent[block] != null) {
+        template = template.split(block).join(blockContent[block]);
+        delete blockContent[block];
+      } else {
+        // if not in memory, it is a block statement that can be ignored
+        template = template.split(block).join('');
+      }
+    }
+  });
+
+  // if an extend statement is found, fill the extended template blocks in
+  if (s.extend.length) {
+    if (s.extend.length > 1) {
+      throw new Error('An odesza template can only extend one file');
+    }
+    let path = `${basePath}${s.extend[0].split('\'')[1]}`;
+    let extendedTemplate = odesza.compile(path, options);
+    console.log(extendedTemplate);
+  }
 
   // recursively replace each import statement with its compiled template
-  imports.forEach(statement => {
-    let path = basePath + statement.split('\'')[1];
-    template = template
-      .split(statement)
-      .join(odesza.compile(path, options));
+  s.imports.forEach(statement => {
+    let path = `${basePath}${statement.split('\'')[1]}`;
+    template = template.split(statement).join(odesza.compile(path, options));
   });
 
   try {
@@ -65,12 +77,7 @@ odesza.render = function(template, options, basePath) {
  */
 
 odesza.compile = function(path, options) {
-  if (typeof path != 'string') {
-    throw new TypeError('path must be a string');
-  }
-  if (path.indexOf('.') == -1) {
-    path += '.odesza';
-  }
+  path = resolve(path);
   try {
     var basePath = path.substr(0, path.lastIndexOf('/') + 1);
     var template = fs.readFileSync(path).toString().trim();
@@ -78,22 +85,6 @@ odesza.compile = function(path, options) {
     throw new Error(e);
   }
   return odesza.render(template, options, basePath);
-};
-
-/**
- * Install plugin.
- *
- * @param {Function} fn Middlware
- * @return {Object} odesza
- */
-
-odesza.use = function(fn) {
-  if ('function' == typeof fn) {
-    odesza.middleware.push(fn);
-  } else {
-    throw new TypeError('Middleware must provide a function.')
-  }
-  return this;
 };
 
 /**
@@ -111,3 +102,36 @@ odesza.__express = function(path, options, fn) {
     return fn(e);
   }
 };
+
+// matches extend, include, import statements
+const rgx = /(extend|block|endblock|include|require)\([\'\"]([\w.\/]+)[\'\"]\)/g;
+
+// extracts statements from template
+const statements = template => {
+  var m = template.match(rgx) || []; // keyword matches
+  var statements = {};
+  statements.extend = m.filter(s => s.indexOf('extend') == 0);
+  statements.blocks = m.filter(s => s.indexOf('block') == 0 || s.indexOf('endblock') == 0);
+  statements.imports = m.filter(s => s.indexOf('import') == 0 || s.indexOf('include') == 0);
+  statements.requires = m.filter(s => s.indexOf('require') == 0);
+  return statements;
+};
+
+// resolves the template file path, throwing an error if anything is wrong
+const resolve = path => {
+  if (typeof path != 'string') {
+    throw new TypeError('path must be a string');
+  }
+  if (!fs.existsSync(path)) {
+    if (fs.existsSync(`${path}.ode`)) {
+      path += '.ode';
+    } else if (fs.existsSync(`${path}.odesza`)) {
+      path += '.odesza';
+    } else {
+      throw new Error(`cannot find file with path: ${path}`);
+    }
+  }
+  return path;
+};
+
+module.exports = odesza;

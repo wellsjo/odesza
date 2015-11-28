@@ -1,0 +1,14 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>${title}</title>
+    import('css')
+  </head>
+  <body>
+    Generic body included everywhere
+    block('content')
+  </body>
+  import('javascripts')
+  require('analytics')
+</html>

@@ -1,0 +1,2 @@
+<script src="${basePath}somejavascript.js"></script>
+<script src="${basePath}someotherjs.js"></script>

@@ -1,1 +1,0 @@
-import('message1')import('message2.txt')import('message3.txt')
