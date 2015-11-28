@@ -1,27 +1,44 @@
-# odesza
+# Odesza
 
-*odesza* allows you to write clean, familiar-looking templates using plain HTML and JavaScript.  Under the hood, content is rendered as ES6 template strings, which allows you to write native JS inline with your HTML.  Odesza supports Express out of the box.
+**Odesza** allows you to write clean, expressive templates with just HTML and inline JavaScript without any learning curve.
 
-##Inspiration
-I use templating languages for two reasons.  The first reason is the ability to import or extend templates, and organize them in such a way that maximizes reusability.  The second reason is the ability to use programming logic in the generation of HTML.  
-Many templating languages offer this functionality with special keyword operators, such as ```each```.
+It offers  
+- multiple inheritence
+- fully expressive inline JavaScript
+- native support for Express framework
+- no magic, just 150 lines of code
 
-
-```javascript
-var odesza = require('odesza');
-
-var options = {
-  name: 'world'
-};
-
-odesza.render('hello ${name}!', options); // hello world!
-``e
+It does NOT offer
+- HTML shorthand
+- special functions
 
 ##Install
 ```
 npm install odesza --save
 ```
-##Express Support
+##Render
+```javascript
+var odesza = require('odesza');
+var vars = {
+  name: 'world'
+};
+odesza.render('hello ${name}!', vars); // hello world!
+```
+##Compile
+Compile odesza files.  Odesza first tries the literal path given, then *.ode*, then *.odesza*.  
+
+*index.odesza*
+```
+hello ${name}!
+```
+```javascript
+var odesza = require('odesza');
+var vars = {
+  name: 'world'
+};
+odesza.compile('index', vars); // hello world!
+```
+##Express
 server.js
 ```javascript
 app.set('view engine', 'odesza');
