@@ -1,6 +1,6 @@
 # Odesza
 
-**Odesza** allows you to write clean, expressive templates with just HTML and inline JavaScript without any learning curve.
+Odesza allows you to write clean, expressive templates with just HTML and inline JavaScript without any learning curve.
 
 It offers  
 - multiple inheritence
@@ -12,11 +12,11 @@ It does NOT offer
 - HTML shorthand
 - special functions
 
-##Install
+**Install**  
 ```
 npm install odesza --save
 ```
-##Render
+**Render**  
 ```javascript
 var odesza = require('odesza');
 var vars = {
@@ -24,7 +24,7 @@ var vars = {
 };
 odesza.render('hello ${name}!', vars); // hello world!
 ```
-##Compile
+**Compile**  
 Compile odesza files.  Odesza first tries the literal path given, then *.ode*, then *.odesza*.  
 
 *index.odesza*
@@ -38,8 +38,7 @@ var vars = {
 };
 odesza.compile('index', vars); // hello world!
 ```
-##Express
-server.js
+**Express**  
 ```javascript
 app.set('view engine', 'odesza');
 ```
