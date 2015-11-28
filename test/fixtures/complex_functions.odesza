@@ -1,0 +1,7 @@
+extends('base')
+
+block('content')
+<ul>
+  ${ names.map(name => `<li>${name} ${title}</li>`).join('') }
+</ul>
+end('content')

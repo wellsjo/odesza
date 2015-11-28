@@ -67,3 +67,16 @@ test('multiple inheritence by chaining extends', t => {
   t.ok(template == answer, 'multiple inheritence with extends');
   t.end();
 });
+
+test('list content using native array methods', t => {
+  let names = ['wells', 'joe', 'dom'];
+  let vars = {
+    title: 'world',
+    names: names,
+    basePath: 'public/js/'
+  };
+  let template = odesza.compile(fixture('complex_functions'), vars).split('\n').join('').trim();
+  var answer = fs.readFileSync(fixture('answers/complex_answer3')).toString().trim();
+  t.ok(template == answer, 'complex js functions work inline')
+  t.end();
+});
