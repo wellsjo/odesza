@@ -3,12 +3,10 @@
 <html>
   <head>
     <title>${title}</title>
-    import('css')
   </head>
   <body>
-    Generic body included everywhere
     block('content')
+    block('stuff')
   </body>
-  import('javascripts')
-  require('analytics')
+  include('javascripts')
 </html>

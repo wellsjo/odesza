@@ -1,0 +1,14 @@
+extend('base')
+
+block('content')
+<p>
+  include('messages/message1')
+  hello ${name}!
+</p>
+end('content')
+
+block('stuff')
+<p>
+  some stuff
+</p>
+end('stuff')
