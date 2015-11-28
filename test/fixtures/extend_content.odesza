@@ -1,3 +1,7 @@
-extend('content')
+extends('content')
 
-block
+block('content')
+<p>
+  you extended content, ${name}!
+</p>
+end('content')

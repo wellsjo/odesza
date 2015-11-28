@@ -11,7 +11,7 @@ var vm = require('vm');
 
 var odesza = {};
 var blocks = {};
-var keywords = ['extend', 'block', 'include'];
+var keywords = ['extends', 'block', 'include'];
 
 /**
  * Renders a template with the given variables.
@@ -19,8 +19,8 @@ var keywords = ['extend', 'block', 'include'];
  * @param {string} template The template to render.
  * @param {object} options An object of key-value pairs representing the
  * variables to be used in the template.
- * @param {string} [basePath] Optional. The base path to use for import and
- * require statements.
+ * @param {string} [basePath] Optional. The base path to use if extend or
+ * include statements are present.
  * @return {string} The rendered template.
  */
 
@@ -32,31 +32,42 @@ odesza.render = function(template, options, basePath) {
 
   // if an extend statement is found, fill the extended template blocks in
   if (s.extend.length) {
+
+    // only allow one extend statement
     if (s.extend.length > 1) {
       throw new Error('An odesza template can only extend one file');
     }
+
+    // loop over block statements, putting them into memory
     s.blocks.forEach(block => {
+
+      // if the block is in memory, this means there is multiple inheritence,
+      // i.e. this has already extended
+      if (blocks[block] != null) return;
+
       let start = template.indexOf(block) + block.length;
       let end = template.indexOf(block.replace('block', 'end'));
-      if (blocks[block] != null) {
-        throw new Error(`${block} has already been registered; blocks cannot be extended`);
+      if (end == -1) {
+        throw new Error(`end statement required after ${block}`);
       }
       blocks[block] = template.substr(start, end - start).trim();
     });
+
     let path = `${basePath}${s.extend[0].split('\'')[1]}`;
     template = odesza.compile(path, options);
     s = statements(template);
-  }
 
-  s.blocks.forEach(block => {
-    if (blocks[block] != null) {
-      template = template.split(block).join(blocks[block]);
-      delete blocks[block];
-    } else {
-      // if not in memory, it is a block statement that can be ignored
-      template = template.split(block).join('');
-    }
-  });
+  } else {
+    s.blocks.forEach(block => {
+      if (blocks[block] != null) {
+        template = template.split(block).join(blocks[block]);
+        delete blocks[block];
+      } else {
+        // if not in memory, it is a block statement that can be ignored
+        template = template.split(block).join('');
+      }
+    });
+  }
 
   // recursively replace each import statement with its compiled template
   s.includes.forEach(statement => {

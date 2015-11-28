@@ -55,3 +55,15 @@ test('extend with block statement', t => {
   t.ok(template == answer, 'extended template with block statement');
   t.end();
 });
+
+test('multiple inheritence by chaining extends', t => {
+  let vars = {
+    title: 'hello world',
+    name: 'world',
+    basePath: '/public/js/'
+  };
+  let template = odesza.compile(fixture('extend_content.odesza'), vars).split('\n').join('').trim();
+  var answer = fs.readFileSync(fixture('answers/complex_answer2')).toString().trim();
+  t.ok(template == answer, 'multiple inheritence with extends');
+  t.end();
+});
