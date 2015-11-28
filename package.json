@@ -1,7 +1,7 @@
 {
   "name": "odesza",
-  "version": "0.0.6",
-  "description": "The most straightforward template engine for JavaScript, using ES6 template string syntax.",
+  "version": "0.0.7",
+  "description": "Write clean, expressive templates with just HTML and inline JavaScript",
   "main": "index.js",
   "author": "Wells Johnston",
   "license": "MIT",

@@ -6,7 +6,7 @@ It offers
 - multiple inheritence
 - fully expressive inline JavaScript
 - native support for Express framework
-- no magic, just 150 lines of code
+- no magic, 0 dependencies, and just 150 lines of code
 
 It does NOT offer
 - HTML shorthand
