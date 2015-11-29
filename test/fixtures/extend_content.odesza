@@ -1,7 +1,7 @@
-extends('content')
+extend content
 
-block('content')
+block body
 <p>
   you extended content, ${name}!
 </p>
-end('content')
+endblock

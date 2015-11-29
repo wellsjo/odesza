@@ -1,0 +1,9 @@
+extend ../../../base
+
+block body
+include ../message4
+endblock
+
+block footer
+include ../../message1
+endblock
