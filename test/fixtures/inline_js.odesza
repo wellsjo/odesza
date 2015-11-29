@@ -1,0 +1,19 @@
+hello: ${names.join(', ')}!
+
+<ul>
+${(() => {
+
+  // this is a self-executing function expression inside an ES6 template string.
+  // essentially that means you can write any inline js you want here. the
+  // following code is to demonstrate hot to generate HTML.
+
+  var listItems = [];
+
+  names.forEach((name, index) => {
+    listItems.push(`<li>${index + 1}: ${name}</li>`)
+  });
+
+  return listItems.join('<br/>');
+
+})()}
+</ul>

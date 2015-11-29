@@ -1,44 +1,175 @@
 # Odesza
 
-Odesza allows you to write clean, expressive templates with just HTML and inline JavaScript without any learning curve.
+Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic, but the simplicity of writing plain HTML and JS.
 
-It offers  
-- multiple inheritence
+**Offers**  
+- multiple inheritance
 - fully expressive inline JavaScript
 - native support for Express framework
+- not limited to just HTML
 - no magic, 0 dependencies, and just 150 lines of code
 
-It does NOT offer
-- HTML shorthand
-- special functions
+**NOT good for**
+- shorthand HTML or tags
+- special operators/functions
+- whitespace sensitivity
 
-**Install**  
+#Install
 ```
 npm install odesza --save
 ```
-**Render**  
-```javascript
-var odesza = require('odesza');
-var vars = {
-  name: 'world'
-};
-odesza.render('hello ${name}!', vars); // hello world!
-```
-**Compile**  
-Compile odesza files.  Odesza first tries the literal path given, then *.ode*, then *.odesza*.  
 
-*index.odesza*
-```
-hello ${name}!
-```
+# Variables
+Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.
 ```javascript
-var odesza = require('odesza');
 var vars = {
-  name: 'world'
+  name = 'world'
 };
-odesza.compile('index', vars); // hello world!
+
+odesza.render('hello, ${name}', vars); // hello world
 ```
-**Express**  
+
+#Inline JS
+Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  
+
+**code**
 ```javascript
-app.set('view engine', 'odesza');
+var vars = {
+  names: ['wells', 'joe', 'dom']
+};
+
+odesza.compile('greetings.ode', vars);
 ```
+**greetings.ode**
+```javascript
+<h2>welcome ${names.join(', ')}!</h2>
+
+${(() => {
+
+  // this is a self-executing function expression inside an ES6 template string.
+  // essentially that means you can write any inline js you want here. the
+  // following code is to demonstrate how you can programatically generate HTML.
+
+  var items = [];
+
+  names.forEach((name, index) => {
+    items.push(`<div>${index + 1}: ${name}</div>`)
+  });
+
+  return items.join('<br/>');
+
+})()}
+```
+**output**
+```html
+<h2>welcome wells, joe, dom!</h2>
+<div>1: wells</div><br/>
+<div>2: joe</div><br/>
+<div>3: dom</div>
+```
+# Partials
+**welcome.ode**
+```
+welcome, ${name}!
+```
+**question.ode**
+```
+include('welcome')
+
+would you like to play a game, ${name}?
+```
+**code**
+```javascript
+var vars = {
+  name: 'foo'
+};
+
+odesza.compile('question', vars);
+```
+**output**
+```
+welcome, foo!
+
+would you like to play a game, foo?
+```
+
+# Inheritance
+Odesza gives you access to multiple inheritance through extending templates and block scopes.  
+
+**layout.ode**
+```html
+<!doctype html>
+
+<html>
+  <head>
+    <title>${title}</title>
+    block('js')
+  </head>
+  <body>
+    block('content')
+  </body>
+</html>
+```
+**page.ode** (extends layout.ode)
+```html
+extends('layout')
+
+block('js')
+<script src="${base_path}/page.js"></script>
+end('js')
+
+block('content')
+<p>
+  Some content.
+</p>
+end('content')
+```
+**extended_page.ode** (extends page.ode, overwrites 'content' block)
+```html
+extends('page')
+
+block('content')
+<p>
+  Overwritten content.
+</p>
+end('content')
+```
+**code**
+```javascript
+var vars = {
+  title: 'hello world',
+  base_path: 'public/js'
+};
+
+odesza.compile('extended_page.ode', vars);
+```
+**output**
+```html
+<!doctype html>
+
+<html>
+  <head>
+    <title>hello world</title>
+    <script src="public/js/page.js"></script>
+  </head>
+  <body>
+    <p>
+      Overwritten content.
+    </p>
+  </body>
+</html>
+```
+#Express Support
+**index.js**
+```javascript
+app.set('view engine', 'ode');
+app.engine('.ode', require('odesza').__express);
+```
+**controller**
+```javascript
+res.render('template', {
+  foo: 'bar'
+});
+```
+#License
+MIT

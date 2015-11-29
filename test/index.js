@@ -80,3 +80,13 @@ test('list content using native array methods', t => {
   t.ok(template == answer, 'complex js functions work inline')
   t.end();
 });
+
+test('stuff', t => {
+  let names = ['wells', 'joe', 'dom'];
+  let vars = {
+    names: names
+  };
+  let template = odesza.compile(fixture('inline_js'), vars);
+  console.log(template);
+  t.end();
+});
