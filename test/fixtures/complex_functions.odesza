@@ -1,7 +1,7 @@
-extends('base')
+extend base
 
-block('content')
+block content
 <ul>
   ${ names.map(name => `<li>${name} ${title}</li>`).join('') }
 </ul>
-end('content')
+endblock

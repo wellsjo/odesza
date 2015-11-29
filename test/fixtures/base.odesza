@@ -5,8 +5,8 @@
     <title>${title}</title>
   </head>
   <body>
-    block('content')
-    block('stuff')
+    block content
+    block stuff
   </body>
-  include('javascripts')
+  include javascripts
 </html>

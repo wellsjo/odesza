@@ -11,7 +11,6 @@ var vm = require('vm');
 
 var odesza = {};
 var blocks = {};
-var keywords = ['extends', 'block', 'include'];
 
 /**
  * Renders a template with the given variables.
@@ -39,40 +38,43 @@ odesza.render = function(template, options, basePath) {
     }
 
     // loop over block statements, putting them into memory
-    s.blocks.forEach(block => {
+    s.block.forEach(block => {
 
       // if the block is in memory, this means there is multiple inheritence,
       // i.e. this has already extended
       if (blocks[block] != null) return;
 
-      let start = template.indexOf(block) + block.length;
-      let end = template.indexOf(block.replace('block', 'end'));
+      // gets the content between the block statements
+      let start = template.indexOf(`block ${block}`) + `block ${block}`.length;
+      let end = template.indexOf(`endblock`, start);
       if (end == -1) {
-        throw new Error(`end statement required after ${block}`);
+        throw new Error(`'endblock' statement required after ${block}`);
       }
       blocks[block] = template.substr(start, end - start).trim();
     });
 
-    let path = `${basePath}${s.extend[0].split('\'')[1]}`;
-    template = odesza.compile(path, options);
+    let extendPath = `${basePath}${s.extend[0]}`;
+    template = odesza.compile(extendPath, options);
     s = statements(template);
 
   } else {
-    s.blocks.forEach(block => {
+    s.block.forEach(block => {
       if (blocks[block] != null) {
-        template = template.split(block).join(blocks[block]);
+        template = template.split(`block ${block}`).join(blocks[block]);
         delete blocks[block];
       } else {
         // if not in memory, it is a block statement that can be ignored
-        template = template.split(block).join('');
+        template = template.split(`block ${block}`).join('');
       }
     });
   }
 
   // recursively replace each import statement with its compiled template
-  s.includes.forEach(statement => {
-    let path = `${basePath}${statement.split('\'')[1]}`;
-    template = template.split(statement).join(odesza.compile(path, options));
+  s.include.forEach(statement => {
+    let path = `${basePath}${statement}`;
+    template = template
+      .split(`include ${statement}`)
+      .join(odesza.compile(path, options));
   });
 
   try {
@@ -117,18 +119,20 @@ odesza.__express = function(path, options, fn) {
   }
 };
 
-// matches keyword statements
-const rstr = `(${keywords.join('|')})\\([\\\'\\\"]([\\w.\\/]+)[\\\'\\\"]\\)`;
-const keyWordsRegex = new RegExp(rstr, 'g');
+const re = /(block|extend|include) ([\/\.\w]+)/g;
 
 // extracts statements from template
 const statements = template => {
-  var statements = {};
-  var m = template.match(keyWordsRegex) || [];
-  statements.extend = m.filter(s => s.indexOf('extend') == 0);
-  statements.blocks = m.filter(s => s.indexOf('block') == 0);
-  statements.includes = m.filter(s => s.indexOf('include') == 0);
-  return statements;
+  var s = {
+    extend: [],
+    block: [],
+    include: []
+  };
+  var m;
+  while ((m = re.exec(template)) != null) {
+    s[m[1]].push(m[2]);
+  }
+  return s;
 };
 
 // resolves the template file path, throwing an error if anything is wrong

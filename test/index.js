@@ -22,25 +22,24 @@ test('compile file', t => {
 });
 
 test('file with variables', t => {
-  let vars = { name : 'yo' };
+  let vars = { name : 'world' };
   let string = odesza.compile(fixture('messages/message1'), vars);
-  console.log(string);
-  t.ok(string == 'hello yo!', 'variables work');
+  t.ok(string == 'hello world 1!', 'variables work');
   t.end();
 });
 
 test('include single file', t => {
-  let vars = { name: 'yo' };
+  let vars = { name: 'world' };
   let string = odesza.compile(fixture('messages/message3'), vars);
-  t.ok(string == 'yo3hello yo!', 'single file was included');
+  t.ok(string == 'hello world 1!', 'single file was included');
   t.end();
 });
 
 test('multiple recursive include statements', t => {
-  let vars = { name: 'yo' };
-  let string = odesza.compile(fixture('includes'), vars);
-  console.log(string);
-  t.ok(string == 'hello yo!yo2yo3hello yo!', 'multiple files were included recursively');
+  let vars = { name: 'world' };
+  let string = odesza.compile(fixture('includes'), vars).split('\n').join('');
+  t.ok(string == 'hello world 1!hello, world 2!hello world 1!'.trim()
+    , 'multiple files were included recursively');
   t.end();
 });
 
@@ -87,6 +86,7 @@ test('stuff', t => {
     names: names
   };
   let template = odesza.compile(fixture('inline_js'), vars);
-  console.log(template);
+  let answer = fs.readFileSync(fixture('answers/complex_answer4')).toString().trim();
+  t.ok(template == answer, 'complex inline js works');
   t.end();
 });

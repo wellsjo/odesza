@@ -1,14 +1,14 @@
-extends('base')
+extend base
 
-block('content')
+block content
 <p>
-  include('messages/message1')
+  include messages/message1
   hello ${name}!
 </p>
-end('content')
+endblock
 
-block('stuff')
+block stuff
 <p>
   some stuff
 </p>
-end('stuff')
+endblock
