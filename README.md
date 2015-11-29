@@ -8,12 +8,7 @@ Odesza allows you to write clean, expressive templates with inline JavaScript.  
 - support for Express
 - no magic, 0 dependencies, and just 150 lines of code
 
-#Install
-```
-npm install odesza --save
-```
-
-# Variables
+## Variables
 Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.
 ```javascript
 var vars = {
@@ -23,18 +18,10 @@ var vars = {
 odesza.render('hello, ${name}', vars); // hello world
 ```
 
-#Inline JS
+## Inline JS
 Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  
 
-**code**
-```javascript
-var vars = {
-  names: ['wells', 'joe', 'dom']
-};
-
-odesza.compile('greetings.ode', vars);
-```
-**greetings.ode**
+greetings.ode
 ```javascript
 <h2>welcome ${names.join(', ')}!</h2>
 
@@ -54,25 +41,42 @@ ${(() => {
 
 })()}
 ```
-**output**
+code
+```javascript
+var vars = {
+  names: ['wells', 'joe', 'dom']
+};
+
+odesza.compile('greetings.ode', vars);
+```
+output
 ```html
 <h2>welcome wells, joe, dom!</h2>
 <div>1: wells</div><br/>
 <div>2: joe</div><br/>
 <div>3: dom</div>
 ```
-# Partials
-**welcome.ode**
+
+## Partials
+Odesza makes it easy to nest templates within each other.  You can include templates as many levels deep as you like.
+
+greeting.ode
 ```javascript
+hello!
+```
+welcome.ode
+```javascript
+include greeting
+
 welcome, ${name}!
 ```
-**question.ode**
+question.ode
 ```javascript
 include welcome
 
 would you like to play a game, ${name}?
 ```
-**code**
+code
 ```javascript
 var vars = {
   name: 'foo'
@@ -80,17 +84,18 @@ var vars = {
 
 odesza.compile('question', vars);
 ```
-**output**
+output
 ```
+hello!
 welcome, foo!
 
 would you like to play a game, foo?
 ```
 
-# Inheritance
+## Inheritance
 Odesza gives you access to multiple inheritance through extending templates and block scopes.  
 
-**layout.ode**
+layout.ode
 ```jade
 <!doctype html>
 
@@ -104,9 +109,9 @@ Odesza gives you access to multiple inheritance through extending templates and 
   </body>
 </html>
 ```
-**page.ode** (extends layout.ode)
+page.ode (extends layout.ode)
 ```html
-extend layout
+extends layout
 
 block js
 <script src="${base_path}/page.js"></script>
@@ -118,9 +123,9 @@ block content
 </p>
 endblock
 ```
-**extended_page.ode** (extends page.ode, overwrites 'content' block)
+extended_page.ode (extends page.ode, overwrites 'content' block)
 ```html
-extend page
+extends page
 
 block content
 <p>
@@ -128,7 +133,7 @@ block content
 </p>
 endblock
 ```
-**code**
+code
 ```javascript
 var vars = {
   title: 'hello world',
@@ -137,7 +142,7 @@ var vars = {
 
 odesza.compile('extended_page.ode', vars);
 ```
-**output**
+output
 ```html
 <!doctype html>
 
@@ -153,17 +158,24 @@ odesza.compile('extended_page.ode', vars);
   </body>
 </html>
 ```
-#Express Support
-**index.js**
+
+## Express Support
+index.js
 ```javascript
 app.set('view engine', 'ode');
 app.engine('.ode', require('odesza').__express);
 ```
-**controller**
+controller
 ```javascript
 res.render('template', {
   foo: 'bar'
 });
 ```
-#License
+
+## Install
+```
+npm install odesza --save
+```
+
+## License
 MIT
