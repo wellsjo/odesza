@@ -1,6 +1,6 @@
 # Odesza
 
-Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic, but the simplicity of writing plain HTML and JS.
+Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic with the simplicity of writing plain HTML and JS.
 
 **Offers**  
 - multiple inheritance
@@ -8,11 +8,6 @@ Odesza allows you to write clean, expressive templates with inline JavaScript.  
 - fully expressive inline JavaScript
 - support for Express
 - no magic, 0 dependencies, and just 150 lines of code
-
-**NOT good for**
-- shorthand HTML or tags
-- special operators/functions
-- whitespace sensitivity
 
 #Install
 ```
@@ -69,12 +64,12 @@ ${(() => {
 ```
 # Partials
 **welcome.ode**
-```
+```javascript
 welcome, ${name}!
 ```
 **question.ode**
-```
-include('welcome')
+```javascript
+include welcome
 
 would you like to play a game, ${name}?
 ```
@@ -97,42 +92,42 @@ would you like to play a game, foo?
 Odesza gives you access to multiple inheritance through extending templates and block scopes.  
 
 **layout.ode**
-```html
+```jade
 <!doctype html>
 
 <html>
   <head>
     <title>${title}</title>
-    block('js')
+    block js
   </head>
   <body>
-    block('content')
+    block content
   </body>
 </html>
 ```
 **page.ode** (extends layout.ode)
 ```html
-extends('layout')
+extend layout
 
-block('js')
+block js
 <script src="${base_path}/page.js"></script>
-end('js')
+endblock
 
-block('content')
+block content
 <p>
   Some content.
 </p>
-end('content')
+endblock
 ```
 **extended_page.ode** (extends page.ode, overwrites 'content' block)
 ```html
-extends('page')
+extend page
 
-block('content')
+block content
 <p>
   Overwritten content.
 </p>
-end('content')
+endblock
 ```
 **code**
 ```javascript
