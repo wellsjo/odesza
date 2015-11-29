@@ -1,0 +1,7 @@
+extend base
+
+block body
+<ul>
+${names.map(name => `<li>${name} ${title}</li>`).join('')}
+</ul>
+endblock

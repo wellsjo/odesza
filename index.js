@@ -8,6 +8,7 @@
 
 var fs = require('fs');
 var vm = require('vm');
+var p = require('path');
 
 var odesza = {};
 var blocks = {};
@@ -47,9 +48,11 @@ odesza.render = function(template, options, basePath) {
       // gets the content between the block statements
       let start = template.indexOf(`block ${block}`) + `block ${block}`.length;
       let end = template.indexOf(`endblock`, start);
+
       if (end == -1) {
         throw new Error(`'endblock' statement required after ${block}`);
       }
+
       blocks[block] = template.substr(start, end - start).trim();
     });
 
@@ -78,7 +81,7 @@ odesza.render = function(template, options, basePath) {
   });
 
   try {
-    return vm.runInNewContext('`' + template + '`', options);
+    return vm.runInNewContext('`' + template + '`', options).trim();
   } catch (e) {
     throw new Error(e);
   }
@@ -119,6 +122,7 @@ odesza.__express = function(path, options, fn) {
   }
 };
 
+// matches keyword statements
 const re = /(block|extend|include) ([\/\.\w]+)/g;
 
 // extracts statements from template
@@ -140,6 +144,7 @@ const resolve = path => {
   if (typeof path != 'string') {
     throw new TypeError('path must be a string');
   }
+  path = p.resolve(path);
   if (!fs.existsSync(path)) {
     if (fs.existsSync(`${path}.ode`)) {
       path += '.ode';

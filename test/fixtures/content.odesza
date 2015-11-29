@@ -1,13 +1,13 @@
 extend base
 
-block content
+block body
 <p>
   include messages/message1
   hello ${name}!
 </p>
 endblock
 
-block stuff
+block footer
 <p>
   some stuff
 </p>

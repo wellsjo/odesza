@@ -1,1 +1,18 @@
-<!doctype html><html>  <head>    <title>hello world</title>  </head>  <body>    <p>  hello world 1!  hello world!</p>    <p>  some stuff</p>  </body>  <script src="/public/js/somejavascript.js"></script><script src="/public/js/someotherjs.js"></script></html>
+<!doctype html>
+
+<html>
+  <head>
+    <title>hello world</title>
+  </head>
+  <body>
+    <p>
+  hello world 1!
+  hello world!
+</p>
+    <p>
+  some stuff
+</p>
+  </body>
+  <script src="/public/js/somejavascript.js"></script>
+<script src="/public/js/someotherjs.js"></script>
+</html>

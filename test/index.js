@@ -4,6 +4,7 @@ const assert = require('assert');
 const odesza = require('../');
 const test = require('tape');
 const path = require('path');
+const diff = require('diff');
 const fs = require('fs');
 const fixture = file => path.join(__dirname, 'fixtures', file);
 
@@ -37,9 +38,9 @@ test('include single file', t => {
 
 test('multiple recursive include statements', t => {
   let vars = { name: 'world' };
-  let string = odesza.compile(fixture('includes'), vars).split('\n').join('');
-  t.ok(string == 'hello world 1!hello, world 2!hello world 1!'.trim()
-    , 'multiple files were included recursively');
+  let string = odesza.compile(fixture('includes'), vars);
+  let answer = fs.readFileSync(fixture('answers/answer1')).toString().trim();
+  t.ok(string == answer, 'multiple files were included recursively');
   t.end();
 });
 
@@ -49,7 +50,7 @@ test('extend with block statement', t => {
     name: 'world',
     basePath: '/public/js/'
   };
-  let template = odesza.compile(fixture('content.odesza'), vars).split('\n').join('').trim();
+  let template = odesza.compile(fixture('content.odesza'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer1')).toString().trim();
   t.ok(template == answer, 'extended template with block statement');
   t.end();
@@ -61,9 +62,21 @@ test('multiple inheritence by chaining extends', t => {
     name: 'world',
     basePath: '/public/js/'
   };
-  let template = odesza.compile(fixture('extend_content.odesza'), vars).split('\n').join('').trim();
+  let template = odesza.compile(fixture('extend_content.odesza'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer2')).toString().trim();
   t.ok(template == answer, 'multiple inheritence with extends');
+  t.end();
+});
+
+test('extending and including from parent directories', t => {
+  let vars = {
+    title: 'hello',
+    name: 'world',
+    basePath: 'public/js/'
+  };
+  let template = odesza.compile(fixture('messages/dir/dir/message5'), vars);
+  let answer = fs.readFileSync(fixture('answers/complex_answer5')).toString().trim();
+  t.ok(template == answer, 'files can be extended and included from parent directories');
   t.end();
 });
 
@@ -74,13 +87,13 @@ test('list content using native array methods', t => {
     names: names,
     basePath: 'public/js/'
   };
-  let template = odesza.compile(fixture('complex_functions'), vars).split('\n').join('').trim();
+  let template = odesza.compile(fixture('simple_js'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer3')).toString().trim();
-  t.ok(template == answer, 'complex js functions work inline')
+  t.ok(template == answer, 'simple js functions (map) work inline');
   t.end();
 });
 
-test('stuff', t => {
+test('complex inline js', t => {
   let names = ['wells', 'joe', 'dom'];
   let vars = {
     names: names

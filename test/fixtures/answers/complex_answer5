@@ -2,13 +2,11 @@
 
 <html>
   <head>
-    <title>world</title>
+    <title>hello</title>
   </head>
   <body>
-    <ul>
-<li>wells world</li><li>joe world</li><li>dom world</li>
-</ul>
-    
+    hello world 1!
+    hello world 1!
   </body>
   <script src="public/js/somejavascript.js"></script>
 <script src="public/js/someotherjs.js"></script>

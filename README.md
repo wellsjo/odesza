@@ -4,9 +4,9 @@ Odesza allows you to write clean, expressive templates with inline JavaScript.  
 
 **Offers**  
 - multiple inheritance
+- variables
 - fully expressive inline JavaScript
-- native support for Express framework
-- not limited to just HTML
+- support for Express
 - no magic, 0 dependencies, and just 150 lines of code
 
 **NOT good for**
