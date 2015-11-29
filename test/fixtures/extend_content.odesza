@@ -1,4 +1,4 @@
-extend content
+extends content
 
 block body
 <p>

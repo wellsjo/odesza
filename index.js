@@ -31,10 +31,10 @@ odesza.render = function(template, options, basePath) {
   var s = statements(template);
 
   // if an extend statement is found, fill the extended template blocks in
-  if (s.extend.length) {
+  if (s.extends.length) {
 
     // only allow one extend statement
-    if (s.extend.length > 1) {
+    if (s.extends.length > 1) {
       throw new Error('An odesza template can only extend one file');
     }
 
@@ -56,7 +56,7 @@ odesza.render = function(template, options, basePath) {
       blocks[block] = template.substr(start, end - start).trim();
     });
 
-    let extendPath = `${basePath}${s.extend[0]}`;
+    let extendPath = `${basePath}${s.extends[0]}`;
     template = odesza.compile(extendPath, options);
     s = statements(template);
 
@@ -123,12 +123,12 @@ odesza.__express = function(path, options, fn) {
 };
 
 // matches keyword statements
-const re = /(block|extend|include) ([\/\.\w]+)/g;
+const re = /(block|extends|include) ([\/\.\w]+)/g;
 
 // extracts statements from template
 const statements = template => {
   var s = {
-    extend: [],
+    extends: [],
     block: [],
     include: []
   };
