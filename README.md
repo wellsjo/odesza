@@ -2,7 +2,6 @@
 
 Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic with the simplicity of writing plain HTML and JS.
 
-**Offers**  
 - multiple inheritance
 - variables
 - fully expressive inline JavaScript
