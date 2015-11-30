@@ -8,19 +8,44 @@ Odesza allows you to write clean, expressive templates with inline JavaScript.  
 - support for Express
 - no magic, 0 dependencies, and just 150 lines of code
 
-## Variables
-Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.
+## Variables & Statements
+Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.  You can also treat `${}` as a function statement.
+
+code
 ```javascript
 var vars = {
-  name = 'world'
+  title: 'hello world',
+  names: ['foo', 'bar']
 };
 
-odesza.render('hello, ${name}', vars); // hello world
+odesza.compile('hello', vars);
+```
+hello.ode
+```
+<title>${title}</title>
+<p>
+  Welcome, ${names.join(',')}!
+</p>
+```
+output
+```
+<title>hello world</title>
+<p>
+  Welcome, foo, bar
+</p>
 ```
 
 ## Inline JS
 Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  
 
+code
+```javascript
+var vars = {
+  names: ['wells', 'joe', 'dom']
+};
+
+odesza.compile('greetings.ode', vars);
+```
 greetings.ode
 ```javascript
 <h2>welcome ${names.join(', ')}!</h2>
@@ -41,14 +66,6 @@ ${(() => {
 
 })()}
 ```
-code
-```javascript
-var vars = {
-  names: ['wells', 'joe', 'dom']
-};
-
-odesza.compile('greetings.ode', vars);
-```
 output
 ```html
 <h2>welcome wells, joe, dom!</h2>
@@ -58,7 +75,7 @@ output
 ```
 
 ## Partials
-Odesza makes it easy to nest templates within each other.  You can include templates as many levels deep as you like.
+Odesza makes it easy to nest templates within each other.  You can include templates as many levels deep as you like. Variables maintain scope in included files.
 
 greeting.ode
 ```javascript
