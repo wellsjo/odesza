@@ -2,13 +2,11 @@
 
 Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic with the simplicity of writing plain HTML and JS.
 
-- multiple inheritance
-- variables
-- fully expressive inline JavaScript
+- multiple inheritance (extends, includes, blocks)
+- full access to JS (variables, iteration, functions)
 - support for Express
-- no magic, 0 dependencies, and just 150 lines of code
 
-## Variables & Statements
+## Variables & Expressions
 Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.  You can also treat `${}` as a function statement.
 
 code
@@ -24,19 +22,19 @@ hello.ode
 ```
 <title>${title}</title>
 <p>
-  Welcome, ${names.join(',')}!
+  Welcome, ${names.map(n => `<i>${n}</i>`).join(',')}!
 </p>
 ```
 output
 ```
 <title>hello world</title>
 <p>
-  Welcome, foo, bar
+  Welcome, <i>foo</i>, <i>bar</i>
 </p>
 ```
 
 ## Inline JS
-Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  
+Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  If you need more flexibility with inline js, you can create a self-executing function expression with code inside it like this: `${(() => { ... }())`.
 
 code
 ```javascript
