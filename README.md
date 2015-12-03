@@ -174,6 +174,19 @@ output
 </html>
 ```
 
+## Command Line
+```bash
+Usage: odesza <file> [options]
+
+Compiles odesza templates.
+
+Options:
+
+  -h, --help     output usage information
+  -V, --version  output the version number
+  -o, --output   output file
+```
+
 ## Express Support
 index.js
 ```javascript
