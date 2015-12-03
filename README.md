@@ -3,7 +3,7 @@
 Odesza allows you to write clean, expressive templates with inline JavaScript.  It offers the flexibility of multiple inheritance and inline programming logic with the simplicity of writing plain HTML and JS.
 
 - multiple inheritance (extends, includes, blocks)
-- full access to JS (variables, iteration, functions)
+- full access to inline ES6 JavaScript
 - support for Express
 
 ## Variables & Expressions
@@ -19,21 +19,21 @@ var vars = {
 odesza.compile('hello', vars);
 ```
 hello.ode
-```
+```javascript
 <title>${title}</title>
 <p>
-  Welcome, ${names.map(n => `<i>${n}</i>`).join(',')}!
+  Welcome, ${names.map(n => `<i>${n}</i>`).join(', ')}!
 </p>
 ```
 output
-```
+```html
 <title>hello world</title>
 <p>
   Welcome, <i>foo</i>, <i>bar</i>
 </p>
 ```
 
-## Inline JS
+## Inline JavaScript
 Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  If you need more flexibility with inline js, you can create a self-executing function expression with code inside it like this: `${(() => { ... }())`.
 
 code
@@ -174,19 +174,6 @@ output
 </html>
 ```
 
-## Command Line
-```bash
-Usage: odesza <file> [options]
-
-Compiles odesza templates.
-
-Options:
-
-  -h, --help     output usage information
-  -V, --version  output the version number
-  -o, --output   output file
-```
-
 ## Express Support
 index.js
 ```javascript
@@ -198,6 +185,12 @@ controller
 res.render('template', {
   foo: 'bar'
 });
+```
+
+## Command Line
+You can compile odesza templates from the command line to `stdout` or an output file.
+```
+odesza <file> [-o <output>]
 ```
 
 ## Install
