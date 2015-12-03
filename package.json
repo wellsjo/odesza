@@ -12,6 +12,7 @@
   "scripts": {
     "test": "node test"
   },
+  "preferGlobal": true,
   "bin": {
     "odesza": "./cli.js"
   },
