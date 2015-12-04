@@ -111,11 +111,11 @@ welcome, foo!
 would you like to play a game, foo?
 ```
 
-# Inheritance
+### Inheritance
 Odesza gives you access to multiple inheritance through extending templates and block scopes.  
 
 **layout.ode**
-```jade
+```html
 <!doctype html>
 
 <html>
