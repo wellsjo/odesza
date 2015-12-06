@@ -53,7 +53,7 @@ ${(() => {
   var items = [];
 
   names.forEach((name, index) => {
-    items.push(`<div>${index + 1}: ${name}</div>`)
+    items.push(`<div>${index + 1}: ${name}</div>`);
   });
 
   return items.join('<br/>');

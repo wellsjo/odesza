@@ -101,3 +101,17 @@ test('complex inline js', t => {
   t.ok(template == answer, 'complex inline js works');
   t.end();
 });
+
+test('include file that extends another', t => {
+  let names = ['wells', 'joe', 'dom'];
+  let vars = {
+    title: 'world',
+    names: names,
+    name: 'foo',
+    basePath: 'public/js/'
+  };
+  let template = odesza.compile(fixture('include_extended.ode'), vars);
+  let answer = fs.readFileSync(fixture('answers/complex_answer6')).toString().trim();
+  t.ok(template == answer, 'included file that extends another template');
+  t.end();
+});
