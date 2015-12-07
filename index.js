@@ -28,7 +28,10 @@ odesza.render = function(template, options, basePath) {
 
   options = options && 'object' == typeof options ? options : {};
 
-  var s = statements(template);
+  // strip comments
+  template = template.replace(/(?:\/\*(?:[\s\S]*?)\*\/)|(?:([\s;])+\/\/(?:.*)$)/gm, '$1');
+
+  var s = getStatements(template);
 
   // if an extend statement is found, fill the extended template blocks in
   if (s.extends.length) {
@@ -57,8 +60,8 @@ odesza.render = function(template, options, basePath) {
     });
 
     let extendPath = `${basePath}${s.extends[0]}`;
-    template = odesza.compile(extendPath, options);
-    s = statements(template);
+    template = odesza.renderFile(extendPath, options);
+    s = getStatements(template);
 
   } else {
     s.block.forEach(block => {
@@ -72,12 +75,12 @@ odesza.render = function(template, options, basePath) {
     });
   }
 
-  // recursively replace each import statement with its compiled template
+  // recursively replace each import statement with its rendered template
   s.include.forEach(statement => {
     let path = `${basePath}${statement}`;
     template = template
       .split(`include ${statement}`)
-      .join(odesza.compile(path, options));
+      .join(odesza.renderFile(path, options));
   });
 
   try {
@@ -88,15 +91,15 @@ odesza.render = function(template, options, basePath) {
 };
 
 /**
- * Compiles a template file.
+ * Renders a template file.
  *
  * @param {string} path The path to the template file.
  * @param {object} options Options passed in to render the template.
  * @return {string} The rendered template.
  */
 
-odesza.compile = function(path, options) {
-  path = resolve(path);
+odesza.renderFile = function(path, options) {
+  path = resolvePath(path);
   try {
     var basePath = path.substr(0, path.lastIndexOf('/') + 1);
     var template = fs.readFileSync(path).toString().trim();
@@ -116,7 +119,7 @@ odesza.compile = function(path, options) {
 
 odesza.__express = function(path, options, fn) {
   try {
-    return fn(null, odesza.compile(path, options));
+    return fn(null, odesza.renderFile(path, options));
   } catch (e) {
     return fn(e);
   }
@@ -125,8 +128,7 @@ odesza.__express = function(path, options, fn) {
 // matches keyword statements
 const re = /(block|extends|include) ([\/\.\w]+)/g;
 
-// extracts statements from template
-const statements = template => {
+function getStatements(template) {
   var s = {
     extends: [],
     block: [],
@@ -137,10 +139,10 @@ const statements = template => {
     s[m[1]].push(m[2]);
   }
   return s;
-};
+}
 
 // resolves the template file path, throwing an error if anything is wrong
-const resolve = path => {
+function resolvePath(path) {
   if (typeof path != 'string') {
     throw new TypeError('path must be a string');
   }
@@ -155,6 +157,6 @@ const resolve = path => {
     }
   }
   return path;
-};
+}
 
 module.exports = odesza;

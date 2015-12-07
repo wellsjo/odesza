@@ -15,28 +15,28 @@ test('render variable', t => {
 
 test('compile file', t => {
   let vars = { value: 'world' };
-  let string = odesza.compile(fixture('simple'), vars);
+  let string = odesza.renderFile(fixture('simple'), vars);
   t.ok(string == 'hello world', 'template files compile');
   t.end();
 });
 
 test('file with variables', t => {
   let vars = { name : 'world' };
-  let string = odesza.compile(fixture('messages/message1'), vars);
+  let string = odesza.renderFile(fixture('messages/message1'), vars);
   t.ok(string == 'hello world 1!', 'variables work');
   t.end();
 });
 
 test('include single file', t => {
   let vars = { name: 'world' };
-  let string = odesza.compile(fixture('messages/message3'), vars);
+  let string = odesza.renderFile(fixture('messages/message3'), vars);
   t.ok(string == 'hello world 1!', 'single file was included');
   t.end();
 });
 
 test('multiple recursive include statements', t => {
   let vars = { name: 'world' };
-  let string = odesza.compile(fixture('includes'), vars);
+  let string = odesza.renderFile(fixture('includes'), vars);
   let answer = fs.readFileSync(fixture('answers/answer1')).toString().trim();
   t.ok(string == answer, 'multiple files were included recursively');
   t.end();
@@ -48,7 +48,7 @@ test('extend with block statement', t => {
     name: 'world',
     basePath: '/public/js/'
   };
-  let template = odesza.compile(fixture('content.odesza'), vars);
+  let template = odesza.renderFile(fixture('content.odesza'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer1')).toString().trim();
   t.ok(template == answer, 'extended template with block statement');
   t.end();
@@ -60,7 +60,7 @@ test('multiple inheritence by chaining extends', t => {
     name: 'world',
     basePath: '/public/js/'
   };
-  let template = odesza.compile(fixture('extend_content.odesza'), vars);
+  let template = odesza.renderFile(fixture('extend_content.odesza'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer2')).toString().trim();
   t.ok(template == answer, 'multiple inheritence with extends');
   t.end();
@@ -72,7 +72,7 @@ test('extending and including from parent directories', t => {
     name: 'world',
     basePath: 'public/js/'
   };
-  let template = odesza.compile(fixture('messages/dir/dir/message5'), vars);
+  let template = odesza.renderFile(fixture('messages/dir/dir/message5'), vars);
   let answer = fs.readFileSync(fixture('answers/complex_answer5')).toString().trim();
   t.ok(template == answer, 'files can be extended and included from parent directories');
   t.end();
@@ -85,7 +85,7 @@ test('list content using native array methods', t => {
     names: names,
     basePath: 'public/js/'
   };
-  let template = odesza.compile(fixture('simple_js'), vars);
+  let template = odesza.renderFile(fixture('simple_js'), vars);
   var answer = fs.readFileSync(fixture('answers/complex_answer3')).toString().trim();
   t.ok(template == answer, 'simple js functions (map) work inline');
   t.end();
@@ -96,7 +96,7 @@ test('complex inline js', t => {
   let vars = {
     names: names
   };
-  let template = odesza.compile(fixture('inline_js'), vars);
+  let template = odesza.renderFile(fixture('inline_js'), vars);
   let answer = fs.readFileSync(fixture('answers/complex_answer4')).toString().trim();
   t.ok(template == answer, 'complex inline js works');
   t.end();
@@ -110,7 +110,7 @@ test('include file that extends another', t => {
     name: 'foo',
     basePath: 'public/js/'
   };
-  let template = odesza.compile(fixture('include_extended.ode'), vars);
+  let template = odesza.renderFile(fixture('include_extended.ode'), vars);
   let answer = fs.readFileSync(fixture('answers/complex_answer6')).toString().trim();
   t.ok(template == answer, 'included file that extends another template');
   t.end();
