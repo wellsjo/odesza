@@ -128,6 +128,7 @@ odesza.__express = function(path, options, fn) {
 // matches keyword statements
 const re = /(block|extends|include) ([\/\.\w]+)/g;
 
+// returns keyword statements found in the template
 function getStatements(template) {
   var s = {
     extends: [],

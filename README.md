@@ -27,7 +27,7 @@ var vars = {
   names: ['foo', 'bar']
 };
 
-odesza.compile('hello.ode', vars);
+odesza.renderFile('hello.ode', vars);
 ```
 **output**
 ```html
@@ -66,7 +66,7 @@ var vars = {
   names: ['wells', 'joe', 'dom']
 };
 
-odesza.compile('greetings.ode', vars);
+odesza.renderFile('greetings.ode', vars);
 ```
 **output**
 ```html
@@ -101,7 +101,7 @@ var vars = {
   name: 'foo'
 };
 
-odesza.compile('question,ode', vars);
+odesza.renderFile('question,ode', vars);
 ```
 **output**
 ```
@@ -159,7 +159,7 @@ var vars = {
   base_path: 'public/js'
 };
 
-odesza.compile('extended_page.ode', vars);
+odesza.renderFile('extended_page.ode', vars);
 ```
 **output**
 ```html
