@@ -1,7 +1,7 @@
 /**
  * Flexible template engine powered by ES6 template strings.
  *
- * @author Wells Johnston <wells@littlstar.com>
+ * @author Wells Johnston <w@wellsjohnston.com>
  */
 
 'use strict'
