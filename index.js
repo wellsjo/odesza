@@ -12,6 +12,10 @@ var p = require('path');
 
 var odesza = {};
 var blocks = {};
+var cache = {
+  templates: {},
+  paths: {}
+};
 
 /**
  * Renders a template with the given variables.
@@ -100,9 +104,15 @@ odesza.render = function(template, options, basePath) {
 
 odesza.renderFile = function(path, options) {
   path = resolvePath(path);
+  var basePath = path.substr(0, path.lastIndexOf('/') + 1);
+  var template;
   try {
-    var basePath = path.substr(0, path.lastIndexOf('/') + 1);
-    var template = fs.readFileSync(path).toString().trim();
+    if (cache.templates[path] == null) {
+      template = fs.readFileSync(path).toString().trim();
+      cache.templates[path] = template;
+    } else {
+      template = cache.templates[path];
+    }
   } catch (e) {
     throw new Error(e);
   }
@@ -147,17 +157,21 @@ function resolvePath(path) {
   if (typeof path != 'string') {
     throw new TypeError('path must be a string');
   }
-  path = p.resolve(path);
-  if (!fs.existsSync(path)) {
-    if (fs.existsSync(`${path}.ode`)) {
-      path += '.ode';
-    } else if (fs.existsSync(`${path}.odesza`)) {
-      path += '.odesza';
+  if (cache.paths[path] != null) {
+    return cache.paths[path];
+  }
+  var resolvedPath = p.resolve(path);
+  if (!fs.existsSync(resolvedPath)) {
+    if (fs.existsSync(`${resolvedPath}.ode`)) {
+      resolvedPath += '.ode';
+    } else if (fs.existsSync(`${resolvedPath}.odesza`)) {
+      resolvedPath += '.odesza';
     } else {
       throw new Error(`cannot find file with path: ${path}`);
     }
   }
-  return path;
+  cache.paths[path] = resolvedPath;
+  return resolvedPath;
 }
 
 module.exports = odesza;
