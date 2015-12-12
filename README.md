@@ -10,15 +10,21 @@ Odesza is a templating engine that allows you to write clean, expressive templat
 ### Inspiration
 I find learning templating languages to be more of a hassle than just writing the HTML.  Hence, there is no magic or shorthand code in Odesza templates.  Odesza simply provides a structure for you to write complex templating systems without having to learn a new language.  Simply put, it offers the flexibility of multiple inheritance and inline programming logic with the familiarity of writing plain HTML and JS.  
 
-### Variables & Expressions
+### Syntax
 Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.  You can also treat `${}` as a function statement.  
 
 **hello.ode**
 ```javascript
-<title>${title}</title>
-<p>
-  Welcome, ${names.map(n => `<i>${n}</i>`).join(', ')}!
-</p>
+<html>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <p>
+    Welcome, ${names.join(', ')}!
+  </p>
+</body>
+</html>
 ```
 **code**
 ```javascript
@@ -31,52 +37,18 @@ odesza.renderFile('hello.ode', vars);
 ```
 **output**
 ```html
-<title>hello world</title>
-<p>
-  Welcome, <i>foo</i>, <i>bar</i>
-</p>
+<html>
+<head>
+  <title>hello world</title>
+</head>
+  <p>
+    Welcome, foo, bar
+  </p>
+</body>
+</html>
 ```
 
-### Inline JavaScript
-Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  If you need more flexibility with inline js, you can create a self-executing function expression with code inside it like this: `${(() => { ... })()}`.
-
-**greetings.ode**
-```javascript
-<h2>welcome ${names.join(', ')}!</h2>
-
-${(() => {
-
-  // this is a self-executing function expression inside an ES6 template string.
-  // essentially that means you can write any inline js you want here. the
-  // following code is to demonstrate how you can programatically generate HTML.
-
-  var items = [];
-
-  names.forEach((name, index) => {
-    items.push(`<div>${index + 1}: ${name}</div>`);
-  });
-
-  return items.join('<br/>');
-
-})()}
-```
-**code**
-```javascript
-var vars = {
-  names: ['wells', 'joe', 'dom']
-};
-
-odesza.renderFile('greetings.ode', vars);
-```
-**output**
-```html
-<h2>welcome wells, joe, dom!</h2>
-<div>1: wells</div><br/>
-<div>2: joe</div><br/>
-<div>3: dom</div>
-```
-
-### Partials
+### Including Partials
 Odesza makes it easy to nest templates within each other.  You can include templates as many levels deep as you like. Variables maintain scope in included files.
 
 **greeting.ode**
@@ -176,6 +148,45 @@ odesza.renderFile('extended_page.ode', vars);
     </p>
   </body>
 </html>
+```
+
+### Inline JavaScript
+Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  If you need more flexibility with inline js, you can create a self-executing function expression with code inside it like this: `${(() => { ... })()}`.
+
+**greetings.ode**
+```javascript
+<h2>welcome ${names.join(', ')}!</h2>
+
+${(() => {
+
+  // this is a self-executing function expression inside an ES6 template string.
+  // essentially that means you can write any inline js you want here. the
+  // following code is to demonstrate how you can programatically generate HTML.
+
+  var items = [];
+
+  names.forEach((name, index) => {
+    items.push(`<div>${index + 1}: ${name}</div>`);
+  });
+
+  return items.join('<br/>');
+
+})()}
+```
+**code**
+```javascript
+var vars = {
+  names: ['wells', 'joe', 'dom']
+};
+
+odesza.renderFile('greetings.ode', vars);
+```
+**output**
+```html
+<h2>welcome wells, joe, dom!</h2>
+<div>1: wells</div><br/>
+<div>2: joe</div><br/>
+<div>3: dom</div>
 ```
 
 ### Express Support
