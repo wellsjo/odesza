@@ -6,16 +6,22 @@
 
 'use strict'
 
-var fs = require('fs');
-var vm = require('vm');
-var p = require('path');
+const fs = require('fs');
+const vm = require('vm');
+const p = require('path');
 
-var odesza = {};
-var blocks = {};
-var cache = {
+const odesza = {};
+const blocks = {};
+const cache = {
   templates: {},
   paths: {}
 };
+
+// cache control
+var useCache = true;
+
+// matches keyword statements (block, include, extends)
+const re = /(block|extends|include) ([\/\.\w]+)/g;
 
 /**
  * Renders a template with the given variables.
@@ -87,41 +93,44 @@ odesza.render = function(template, options, basePath) {
       .join(odesza.renderFile(path, options));
   });
 
-  try {
-    return vm.runInNewContext('`' + template + '`', options).trim();
-  } catch (e) {
-    throw new Error(e);
-  }
+  return vm.runInNewContext('`' + template + '`', options).trim();
 };
 
 /**
  * Renders a template file.
  *
- * @param {string} path The path to the template file.
+ * @param {string} location The location to the template file.
  * @param {object} options Options passed in to render the template.
  * @return {string} The rendered template.
  */
 
-odesza.renderFile = function(path, options) {
-  path = resolvePath(path);
-  var basePath = path.substr(0, path.lastIndexOf('/') + 1);
+odesza.renderFile = function(location, options) {
+  location = resolvePath(location);
+  var basePath = location.substr(0, location.lastIndexOf('/') + 1);
   var template;
-  try {
-    if (cache.templates[path] == null) {
-      template = fs.readFileSync(path).toString().trim();
-      cache.templates[path] = template;
-    } else {
-      template = cache.templates[path];
-    }
-  } catch (e) {
-    throw new Error(e);
+  if (useCache && cache.templates[location] != null) {
+    template = cache.templates[location];
+  } else {
+    template = fs.readFileSync(location).toString().trim();
+    cache.templates[location] = template;
   }
   return odesza.render(template, options, basePath);
 };
 
 /**
+ * Disables template and path caching.
+ *
+ * @public
+ */
+
+odesza.disableCache = function() {
+  useCache = false;
+};
+
+/**
  * Adds support for express.
  *
+ * @public
  * @param {string} path
  * @param {object} options
  * @param {function} fn
@@ -135,10 +144,15 @@ odesza.__express = function(path, options, fn) {
   }
 };
 
-// matches keyword statements
-const re = /(block|extends|include) ([\/\.\w]+)/g;
+/**
+ * Returns an object of keyword statements for a given template string.
+ *
+ * @private
+ * @param {string} template The template string to find keywords in.
+ * @return {object} An object ontaining extends, block, and include statements
+ * found in the template string.
+ */
 
-// returns keyword statements found in the template
 function getStatements(template) {
   var s = {
     extends: [],
@@ -152,12 +166,19 @@ function getStatements(template) {
   return s;
 }
 
-// resolves the template file path, throwing an error if anything is wrong
+/**
+ * Resolves the template file path, throwing an error if anything is wrong
+ *
+ * @private
+ * @param {string} path The relative path to the file.
+ * @return {string} The resolved path.
+ */
+
 function resolvePath(path) {
   if (typeof path != 'string') {
-    throw new TypeError('path must be a string');
+    throw new TypeError('invalid path: input must be a string');
   }
-  if (cache.paths[path] != null) {
+  if (useCache && cache.paths[path] != null) {
     return cache.paths[path];
   }
   var resolvedPath = p.resolve(path);
