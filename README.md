@@ -2,7 +2,7 @@
 
 Odesza is a templating engine that allows you to write clean, expressive templates with inline JavaScript.  Some of the features include
 
-- multiple inheritance (extends, includes, blocks)
+- multiple inheritance (extends, includes, block scope)
 - full access to inline ES6 JavaScript
 - support for Express framework
 - no "magic" or new shorthand to learn
