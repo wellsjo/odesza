@@ -1,1 +1,8 @@
 hello ${ value }
+
+// here is a line comment
+
+/**
+ *
+ * here is another coment TODO
+ */

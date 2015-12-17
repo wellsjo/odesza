@@ -20,6 +20,7 @@
     "tape": "^4.2.2"
   },
   "dependencies": {
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "strip-comments": "^0.4.2"
   }
 }

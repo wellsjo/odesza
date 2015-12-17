@@ -8,10 +8,12 @@
 
 const fs = require('fs');
 const vm = require('vm');
-const p = require('path');
+const path = require('path');
+const stripComments = require('strip-comments');
 
 const odesza = {};
 const blocks = {};
+
 const cache = {
   templates: {},
   paths: {}
@@ -38,10 +40,9 @@ odesza.render = function(template, options, basePath) {
 
   options = options && 'object' == typeof options ? options : {};
 
-  // strip comments
-  template = template.replace(/(?:\/\*(?:[\s\S]*?)\*\/)|(?:([\s;])+\/\/(?:.*)$)/gm, '$1');
+  template = stripComments(template);
 
-  var s = getStatements(template);
+  let s = getStatements(template);
 
   // if an extend statement is found, fill the extended template blocks in
   if (s.extends.length) {
@@ -87,10 +88,10 @@ odesza.render = function(template, options, basePath) {
 
   // recursively replace each import statement with its rendered template
   s.include.forEach(statement => {
-    let path = `${basePath}${statement}`;
+    let p = `${basePath}${statement}`;
     template = template
       .split(`include ${statement}`)
-      .join(odesza.renderFile(path, options));
+      .join(odesza.renderFile(p, options));
   });
 
   return vm.runInNewContext('`' + template + '`', options).trim();
@@ -105,9 +106,9 @@ odesza.render = function(template, options, basePath) {
  */
 
 odesza.renderFile = function(location, options) {
-  location = resolvePath(location);
-  var basePath = location.substr(0, location.lastIndexOf('/') + 1);
   var template;
+  let basePath = location.substr(0, location.lastIndexOf('/') + 1);
+  location = resolvePath(location);
   if (useCache && cache.templates[location] != null) {
     template = cache.templates[location];
   } else {
@@ -118,7 +119,7 @@ odesza.renderFile = function(location, options) {
 };
 
 /**
- * Disables template and path caching.
+ * Disables caching.
  *
  * @public
  */
@@ -131,14 +132,14 @@ odesza.disableCache = function() {
  * Adds support for express.
  *
  * @public
- * @param {string} path
+ * @param {string} file
  * @param {object} options
  * @param {function} fn
  */
 
-odesza.__express = function(path, options, fn) {
+odesza.__express = function(file, options, fn) {
   try {
-    return fn(null, odesza.renderFile(path, options));
+    return fn(null, odesza.renderFile(file, options));
   } catch (e) {
     return fn(e);
   }
@@ -170,28 +171,28 @@ function getStatements(template) {
  * Resolves the template file path, throwing an error if anything is wrong
  *
  * @private
- * @param {string} path The relative path to the file.
- * @return {string} The resolved path.
+ * @param {string} file The relative file to the file.
+ * @return {string} The resolved path for the file.
  */
 
-function resolvePath(path) {
-  if (typeof path != 'string') {
-    throw new TypeError('invalid path: input must be a string');
+function resolvePath(file) {
+  if (typeof file != 'string') {
+    throw new TypeError('invalid file: input must be a string');
   }
-  if (useCache && cache.paths[path] != null) {
-    return cache.paths[path];
+  if (useCache && cache.paths[file] != null) {
+    return cache.paths[file];
   }
-  var resolvedPath = p.resolve(path);
+  var resolvedPath = path.resolve(file);
   if (!fs.existsSync(resolvedPath)) {
     if (fs.existsSync(`${resolvedPath}.ode`)) {
       resolvedPath += '.ode';
     } else if (fs.existsSync(`${resolvedPath}.odesza`)) {
       resolvedPath += '.odesza';
     } else {
-      throw new Error(`cannot find file with path: ${path}`);
+      throw new Error(`cannot find file with file: ${file}`);
     }
   }
-  cache.paths[path] = resolvedPath;
+  cache.paths[file] = resolvedPath;
   return resolvedPath;
 }
 
