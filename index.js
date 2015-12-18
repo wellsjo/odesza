@@ -11,21 +11,25 @@ const vm = require('vm');
 const path = require('path');
 const stripComments = require('strip-comments');
 
-const odesza = {};
+// matches keyword statements (block, include, extends)
+const findStatements = /(block|extends|include) ([\/\.\w]+)/g;
+
+// hold block statements in memory
 const blocks = {};
 
+// used to cache templates and paths (minimize fs calls)
 const cache = {
   templates: {},
   paths: {}
 };
 
-// matches keyword statements (block, include, extends)
-const findStatements = /(block|extends|include) ([\/\.\w]+)/g;
-
-module.exports = odesza;
-
 // cache control
 var useCache = true;
+
+// export odesza
+const odesza = {};
+module.exports = odesza;
+
 
 /**
  * Renders a template with the given variables.
@@ -44,18 +48,18 @@ odesza.render = function(template, options, basePath) {
 
   template = stripComments(template);
 
-  let s = getStatements(template);
+  let statements = getStatements(template);
 
   // if an extend statement is found, fill the extended template blocks in
-  if (s.extends.length) {
+  if (statements.extends.length) {
 
-    // only allow one extend statement
-    if (s.extends.length > 1) {
-      throw new Error('An odesza template can only extend one file');
+    // only allow a template to extend one file
+    if (statements.extends.length > 1) {
+      throw new Error('An odesza template can only extend one file at a time');
     }
 
     // loop over block statements, putting them into memory
-    s.block.forEach(block => {
+    statements.block.forEach(block => {
 
       // if the block is in memory, this means there is multiple inheritence,
       // i.e. this has already extended
@@ -69,31 +73,39 @@ odesza.render = function(template, options, basePath) {
         throw new Error(`'endblock' statement required after ${block}`);
       }
 
+      // store the block section in memory to fill in the extended template
       blocks[block] = template.substr(start, end - start).trim();
     });
 
-    let extendPath = `${basePath}${s.extends[0]}`;
+    let extendPath = `${basePath}${statements.extends[0]}`;
     template = odesza.renderFile(extendPath, options);
-    s = getStatements(template);
+
+    // now get the statements for the extended template
+    statements = getStatements(template);
 
   } else {
-    s.block.forEach(block => {
+
+    // this is the base template (no extends found), so we fill in the blocks
+    statements.block.forEach(block => {
+
       if (blocks[block] != null) {
         template = template.split(`block ${block}`).join(blocks[block]);
         delete blocks[block];
       } else {
-        // if not in memory, it is a block statement that can be ignored
+
+        // if there is a block statement in the base file but no block in
+        // memory, it can be ignored
         template = template.split(`block ${block}`).join('');
       }
     });
   }
 
   // recursively replace each import statement with its rendered template
-  s.include.forEach(statement => {
-    let p = `${basePath}${statement}`;
+  statements.include.forEach(statement => {
+    let file = `${basePath}${statement}`;
     template = template
       .split(`include ${statement}`)
-      .join(odesza.renderFile(p, options));
+      .join(odesza.renderFile(file, options));
   });
 
   return vm.runInNewContext('`' + template + '`', options).trim();
@@ -157,24 +169,29 @@ odesza.__express = function(file, options, fn) {
  */
 
 function getStatements(template) {
-  var s = {
+  var statements = {
     extends: [],
     block: [],
     include: []
   };
-  var m;
-  while ((m = findStatements.exec(template)) != null) {
-    s[m[1]].push(m[2]);
+
+  var match;
+  while ((match = findStatements.exec(template)) != null) {
+    statements[match[1]].push(match[2]);
   }
-  s.block.sort((a, b) => {
-    if (a.length > b.length) {
-      return -1;
-    } else if (a.length < b.length) {
-      return 1;
-    }
+
+  // sorting the block and include statements by length eliminates a bug where
+  // blocks that are substrings of each other get confused.
+  const byLength = (a, b) => {
+    if (a.lenght > b.length) return -1;
+    if (b.length > a.length) return 1;
     return 0;
-  });
-  return s;
+  };
+
+  statements.block.sort(byLength);
+  statements.include.sort(byLength);
+
+  return statements;
 }
 
 /**
@@ -187,13 +204,17 @@ function getStatements(template) {
  */
 
 function resolvePath(file) {
+
   if (typeof file != 'string') {
     throw new TypeError('invalid file: input must be a string');
   }
+
   if (useCache && cache.paths[file] != null) {
     return cache.paths[file];
   }
-  var resolvedPath = path.resolve(file);
+
+  let resolvedPath = path.resolve(file);
+
   if (!fs.existsSync(resolvedPath)) {
     if (fs.existsSync(`${resolvedPath}.ode`)) {
       resolvedPath += '.ode';
@@ -203,6 +224,8 @@ function resolvePath(file) {
       throw new Error(`cannot find file with file: ${file}`);
     }
   }
+
   cache.paths[file] = resolvedPath;
+
   return resolvedPath;
 }
