@@ -19,11 +19,13 @@ const cache = {
   paths: {}
 };
 
+// matches keyword statements (block, include, extends)
+const findStatements = /(block|extends|include) ([\/\.\w]+)/g;
+
+module.exports = odesza;
+
 // cache control
 var useCache = true;
-
-// matches keyword statements (block, include, extends)
-const re = /(block|extends|include) ([\/\.\w]+)/g;
 
 /**
  * Renders a template with the given variables.
@@ -119,7 +121,7 @@ odesza.renderFile = function(location, options) {
 };
 
 /**
- * Disables caching.
+ * Disables template and path caching (all fs lookups).
  *
  * @public
  */
@@ -129,7 +131,7 @@ odesza.disableCache = function() {
 };
 
 /**
- * Adds support for express.
+ * Adds support for Express framework.
  *
  * @public
  * @param {string} file
@@ -161,14 +163,15 @@ function getStatements(template) {
     include: []
   };
   var m;
-  while ((m = re.exec(template)) != null) {
+  while ((m = findStatements.exec(template)) != null) {
     s[m[1]].push(m[2]);
   }
   return s;
 }
 
 /**
- * Resolves the template file path, throwing an error if anything is wrong
+ * Resolves the template file path, throwing an error if anything is wrong.  By
+ * default, the path lookups are all cached.
  *
  * @private
  * @param {string} file The relative file to the file.
@@ -195,5 +198,3 @@ function resolvePath(file) {
   cache.paths[file] = resolvedPath;
   return resolvedPath;
 }
-
-module.exports = odesza;
