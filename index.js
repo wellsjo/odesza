@@ -164,6 +164,14 @@ function getStatements(template) {
   while ((m = re.exec(template)) != null) {
     s[m[1]].push(m[2]);
   }
+  s.block.sort((a, b) => {
+    if (a.length > b.length) {
+      return -1;
+    } else if (a.length < b.length) {
+      return 1;
+    }
+    return 0;
+  });
   return s;
 }
 
