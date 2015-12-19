@@ -5,6 +5,7 @@ const test = require('tape');
 const path = require('path');
 const fs = require('fs');
 const fixture = file => path.join(__dirname, 'fixtures', file);
+const exec = require('child_process').exec;
 
 test('render variable', t => {
   let vars = { value: 'world' };
@@ -114,4 +115,12 @@ test('include file that extends another', t => {
   let answer = fs.readFileSync(fixture('answers/complex_answer6')).toString().trim();
   t.ok(template == answer, 'included file that extends another template');
   t.end();
+});
+
+test('cli usage with variables', t => {
+  let vars = { value: 'world' };
+  exec('node cli test/fixtures/simple value=world', (err, stdout, stderr) => {
+    t.ok(stdout == 'hello world', 'rendering file with variables works from the command line');
+    t.end();
+  });
 });

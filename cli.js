@@ -9,7 +9,7 @@ const app = require('./package.json');
 
 program
   .version(app.version)
-  .usage('<file> [options] var1=val,var2=val2]')
+  .usage('<file> [options] var1=val var2=val2]')
   .description('Compiles odesza templates.')
   .option('-o, --output', 'output file')
   .parse(process.argv);
