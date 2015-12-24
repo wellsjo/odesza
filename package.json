@@ -1,6 +1,6 @@
 {
   "name": "odesza",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Write clean, expressive templates with just HTML and inline JavaScript",
   "main": "index.js",
   "author": "Wells Johnston",
