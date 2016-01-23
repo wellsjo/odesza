@@ -34,12 +34,12 @@ module.exports = odesza;
 /**
  * Renders a template with the given variables.
  *
- * @param {string} template The template to render.
- * @param {object} options An object of key-value pairs representing the
+ * @param {String} template The template to render.
+ * @param {Object} options An object of key-value pairs representing the
  * variables to be used in the template.
- * @param {string} [basePath] Optional. The base path to use if extend or
+ * @param {String} [basePath] Optional. The base path to use if extend or
  * include statements are present.
- * @return {string} The rendered template.
+ * @return {String} The rendered template.
  */
 
 odesza.render = function(template, options, basePath) {
@@ -108,15 +108,18 @@ odesza.render = function(template, options, basePath) {
       .join(odesza.renderFile(file, options));
   });
 
-  return vm.runInNewContext('`' + template + '`', options).trim();
+  return vm
+    .runInNewContext('`' + template + '`', options)
+    .replace('#{', '${')
+    .trim();
 };
 
 /**
  * Renders a template file.
  *
- * @param {string} location The location to the template file.
- * @param {object} options Options passed in to render the template.
- * @return {string} The rendered template.
+ * @param {String} location The location to the template file.
+ * @param {Object} options Options passed in to render the template.
+ * @return {String} The rendered template.
  */
 
 odesza.renderFile = function(location, options) {
@@ -146,9 +149,9 @@ odesza.disableCache = function() {
  * Adds support for Express framework.
  *
  * @public
- * @param {string} file
- * @param {object} options
- * @param {function} fn
+ * @param {String} file
+ * @param {Object} options
+ * @param {Function} fn
  */
 
 odesza.__express = function(file, options, fn) {
@@ -163,8 +166,8 @@ odesza.__express = function(file, options, fn) {
  * Returns an object of keyword statements for a given template string.
  *
  * @private
- * @param {string} template The template string to find keywords in.
- * @return {object} An object ontaining extends, block, and include statements
+ * @param {String} template The template string to find keywords in.
+ * @return {Object} An object ontaining extends, block, and include statements
  * found in the template string.
  */
 
@@ -199,8 +202,8 @@ function getStatements(template) {
  * default, the path lookups are all cached.
  *
  * @private
- * @param {string} file The relative file to the file.
- * @return {string} The resolved path for the file.
+ * @param {String} file The relative file to the file.
+ * @return {String} The resolved path for the file.
  */
 
 function resolvePath(file) {
