@@ -15,7 +15,7 @@ module.exports = odesza;
 /**
  * Creates and returns a new template given `vars` and `basePath`.
  *
- * @param {String} template The template to render.
+ * @param {String} templateString The template string to render.
  * @param {Object} vars An object of key-value pairs representing the
  * variables to be used in the template.
  * @param {String} [basePath] Optional. The base path to use if extend or
@@ -23,12 +23,9 @@ module.exports = odesza;
  * @return {String} The rendered template.
  */
 
-odesza.render = function(template, vars, basePath) {
-  if (basePath == null) {
-    basePath = process.cwd();
-  }
-  var t = new Template(useCache);
-  return t.render(template, vars, basePath);
+odesza.render = function(templateString, vars, basePath) {
+  basePath = basePath || process.cwd();
+  return new Template(useCache).render(templateString, vars, basePath);
 };
 
 
@@ -41,8 +38,7 @@ odesza.render = function(template, vars, basePath) {
  */
 
 odesza.renderFile = function(location, vars) {
-  var t = new Template(useCache);
-  return t.renderFile(location, vars);
+  return new Template(useCache).renderFile(location, vars);
 };
 
 /**
@@ -60,6 +56,10 @@ odesza.__express = function(file, options, fn) {
   } catch (e) {
     return fn(e);
   }
+};
+
+odesza.enableCache = function() {
+  useCache = true;
 };
 
 /**
