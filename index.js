@@ -15,7 +15,7 @@ module.exports = odesza;
 /**
  * Creates and returns a new template given `vars` and `basePath`.
  *
- * @param {String} templateString The template string to render.
+ * @param {String} str The template string to render.
  * @param {Object} vars An object of key-value pairs representing the
  * variables to be used in the template.
  * @param {String} [basePath] Optional. The base path to use if extend or
@@ -23,10 +23,19 @@ module.exports = odesza;
  * @return {String} The rendered template.
  */
 
-odesza.render = function(templateString, vars, basePath) {
+odesza.render = function(str, vars, basePath) {
+
   basePath = basePath || process.cwd();
-  return new Template(useCache).render(templateString, vars, basePath);
-};
+
+  let template = new Template(useCache);
+  let templateString = template.render(str, vars, basePath);
+
+  template.escapes.forEach(block => {
+    templateString = templateString.replace(block.key, block.text);
+  });
+
+  return templateString;
+}
 
 
 /**
@@ -38,8 +47,16 @@ odesza.render = function(templateString, vars, basePath) {
  */
 
 odesza.renderFile = function(location, vars) {
-  return new Template(useCache).renderFile(location, vars);
-};
+
+  let template = new Template(useCache);
+  let templateString = template.renderFile(location, vars);
+
+  template.escapes.forEach(block => {
+    templateString = templateString.replace(block.key, block.text);
+  });
+
+  return templateString;
+}
 
 /**
  * Adds support for Express framework.
@@ -56,11 +73,11 @@ odesza.__express = function(file, options, fn) {
   } catch (e) {
     return fn(e);
   }
-};
+}
 
 odesza.enableCache = function() {
   useCache = true;
-};
+}
 
 /**
  * Disables template and path caching (all fs lookups).
@@ -70,4 +87,4 @@ odesza.enableCache = function() {
 
 odesza.disableCache = function() {
   useCache = false;
-};
+}

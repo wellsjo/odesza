@@ -50,7 +50,7 @@ test('extend with block statement', t => {
     basePath: '/public/js/'
   };
   let template = odesza.renderFile(fixture('content.odesza'), vars);
-  var answer = fs.readFileSync(fixture('answers/complex_answer1')).toString().trim();
+  let answer = fs.readFileSync(fixture('answers/complex_answer1')).toString().trim();
   t.ok(template == answer, 'extended template with block statement');
   t.end();
 });
@@ -123,4 +123,11 @@ test('cli usage with variables', t => {
     t.ok(stdout == 'hello world', 'rendering file with variables works from the command line');
     t.end();
   });
+});
+
+test('escape sequence', t => {
+  let template = odesza.renderFile(fixture('escape_template.ode'));
+  let answer = fs.readFileSync(fixture('answers/answer7')).toString().trim();
+  t.ok(template == answer, 'escape sequence');
+  t.end();
 });
