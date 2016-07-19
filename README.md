@@ -1,112 +1,83 @@
 # Odesza
+The aim is to extend ES6 [template strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) to be a fully featured templating engine. Since everything is parsed as a template string under the hood, the code is short and easy to understand, and you don't need to learn anything except JavaScript syntax.  
+- multiple inheritance (partials, block scope, extends)
+- inline ES6 JavaScript
+- support for Express
 
-Odesza is a templating engine that allows you to write clean, expressive templates with inline JavaScript.  Think of it as JS template strings, but for anything.  
-
-- multiple inheritance (extends, includes, block scope)
-- full access to inline ES6 JavaScript
-- support for Express framework
-- no "magic" or new shorthand to learn
-
-### Goal
-Take inheritance, partials, and inline JS ideas from Jade and strip away the "magic" and shorthand HTML syntax.
-
-### Syntax
-Variables are passed in when Odesza templates are rendered. Scope is maintained through includes and extends.  You can also treat `${}` as a function statement.  
-
-**hello.ode**
+## Usage
+Odesza can be used to render anything like sql or html. From code or the command line.
 ```javascript
-<html>
-<head>
-  <title>${title}</title>
-</head>
-<body>
-  <p>
-    Welcome, ${names.join(', ')}!
-  </p>
-</body>
-</html>
-```
-**code**
-```javascript
-var vars = {
-  title: 'hello world',
-  names: ['foo', 'bar']
-};
+const odesza = require('odesza');
 
-odesza.renderFile('hello.ode', vars);
+odesza.render('hello, ${name}', { name: 'foo' });
+// hello, foo
+
+// or render a template from a file
+odesza.renderFile('template.ode', { name: 'foo'});
 ```
-**output**
+
+## Variables
+Variables work the same as JavaScript template strings, surrounded by `${}`.
+```javascript
+odesza.render('hello ${name}', { name: 'world' });
+// hello world
+```
+
+
+## JavaScript
+You can use JavaScript just like in template strings
+```javascript
+odesza.render('hello ${names.join(', ')}', { names: ['wells', 'joe'] });
+// hello wells, joe
+```
+You can also write more complicated inline functions
+```javascript
+// template.ode
+${(() => {
+
+  // Generates line-break separated list items based on a "names" array
+  return names.map((name, index) => {
+    items.push(`<div>${index + 1}: ${name}</div>`);
+  }).join('<br/>');
+})()}
+```
+**Output:**
 ```html
-<html>
-<head>
-  <title>hello world</title>
-</head>
-  <p>
-    Welcome, foo, bar
-  </p>
-</body>
-</html>
+<div>1: wells</div><br/>
+<div>2: joe</div><br/>
+<div>3: dom</div><br/>
 ```
 
-### Including Partials
-Odesza makes it easy to nest templates within each other.  You can include templates as many levels deep as you like. Variables maintain scope in included files.
-
-**greeting.ode**
+## Partials
+Include an odesza template inside another, for any number of levels.
 ```javascript
-hello!
+odesza.renderFile('welcome.ode', { name: 'foo' });
 ```
-**welcome.ode**
 ```javascript
+// welcome.ode
 include greeting
-
-welcome, ${name}!
+Welcome, ${name}!
 ```
-**question.ode**
 ```javascript
-include welcome
-
-would you like to play a game, ${name}?
+// greeting.ode
+Hello!
 ```
-**code**
+**Output:**
+```
+Hello!
+Welcome, foo
+```
+
+### Block Scope
+Block scopes allow you to define a base template, so you can extend it and create many similar templates. In the base template, you create a block using `block <block-name>`.  In another "extended" template, you can speficy the contents of the blocks using the `extends` keyword. Odesza enables you to extend a template as many times and levels as you want.
 ```javascript
-var vars = {
-  name: 'foo'
-};
-
-odesza.renderFile('question,ode', vars);
+odesza.renderFile('page', {
+  title: 'hello world'
+});
 ```
-**output**
-```
-hello!
-welcome, foo!
-
-would you like to play a game, foo?
-```
-
-### Inheritance
-Odesza gives you access to multiple inheritance through extending templates and block scopes.  
-
-**layout.ode**
-```html
-<!doctype html>
-
-<html>
-  <head>
-    <title>${title}</title>
-    block js
-  </head>
-  <body>
-    block content
-  </body>
-</html>
-```
-**page.ode** (extends layout.ode)
-```html
+```javascript
+// page.ode
 extends layout
-
-block js
-<script src="${base_path}/page.js"></script>
-endblock
 
 block content
 <p>
@@ -114,88 +85,44 @@ block content
 </p>
 endblock
 ```
-**extended_page.ode** (extends page.ode, overwrites 'content' block)
-```html
-extends page
-
-block content
-<p>
-  Overwritten content.
-</p>
-endblock
-```
-**code**
 ```javascript
-var vars = {
-  title: 'hello world',
-  base_path: 'public/js'
-};
-
-odesza.renderFile('extended_page.ode', vars);
+// layout.ode
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  block content
+</body>
 ```
-**output**
+**Output:**
 ```html
-<!doctype html>
-
-<html>
-  <head>
-    <title>hello world</title>
-    <script src="public/js/page.js"></script>
-  </head>
-  <body>
-    <p>
-      Overwritten content.
-    </p>
-  </body>
-</html>
+<head>
+  <title>hello world</title>
+</head>
+<body>
+  <p>
+    Some content.
+  </p>
+</body>
 ```
 
-### Inline JavaScript
-Odesza makes it easy to write inline JavaScript in your templates.  Under the hood, templates are evaluated as ES6 template strings, which means you have access to `${}` expressions.  If you need more flexibility with inline js, you can create a self-executing function expression with code inside it like this: `${(() => { ... })()}`.
-
-**greetings.ode**
+## Comments
+Comments work the same as in Javascript, and are ignored from the template output.
 ```javascript
-<h2>welcome ${names.join(', ')}!</h2>
+// line comments
 
-${(() => {
+/* inline comments */
 
-  // this is a self-executing function expression inside an ES6 template string.
-  // essentially that means you can write any inline js you want here. the
-  // following code is to demonstrate how you can programatically generate HTML.
-
-  var items = [];
-
-  names.forEach((name, index) => {
-    items.push(`<div>${index + 1}: ${name}</div>`);
-  });
-
-  return items.join('<br/>');
-
-})()}
-```
-**code**
-```javascript
-var vars = {
-  names: ['wells', 'joe', 'dom']
-};
-
-odesza.renderFile('greetings.ode', vars);
-```
-**output**
-```html
-<h2>welcome wells, joe, dom!</h2>
-<div>1: wells</div><br/>
-<div>2: joe</div><br/>
-<div>3: dom</div>
+/**
+ * block comments
+ */
 ```
 
-### Express Support
-**index.js**
+## Express Support
 ```javascript
 app.set('view engine', 'ode');
 app.engine('.ode', require('odesza').__express);
 ```
-**controller**
 ```javascript
 res.render('template', {
   foo: 'bar'
@@ -209,8 +136,13 @@ odesza <file> [-o <output>]
 ```
 
 ### Install
+project
 ```
-npm install odesza --save
+npm i odesza --save
+```
+globally
+```
+npm i odesza -g
 ```
 
 ### License
