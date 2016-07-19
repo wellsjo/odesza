@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "btoa": "^1.1.2",
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "comment-parser": "^0.4.0",
+    "extract-comments": "^0.10.1"
   }
 }
