@@ -1,4 +1,9 @@
 
+1.0.1 / 2016-07-20
+==================
+
+  * removed shitty comment stripper code. need to wait an implement something better
+
 1.0.0 / 2016-07-19
 ==================
 
